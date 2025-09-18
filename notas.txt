@@ -1,0 +1,5 @@
+Necesitamos modelos de:
+Categorías de productos
+Productos
+Usuario (dos roles, admin y cliente (este necesita ID de cliente))
+Orden (esto relaciona al ID de usuario con el pedido realizado)
