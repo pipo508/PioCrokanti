@@ -1,7 +1,7 @@
 # src/controllers/health_check.py
 from flask import Blueprint, jsonify
 from src.config.database import db
-from src.models.user import User  # Importa tu modelo
+from src.models.User import User  # Importa tu modelo
 from sqlalchemy import text
 import datetime
 
