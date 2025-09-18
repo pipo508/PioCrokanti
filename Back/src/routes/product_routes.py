@@ -1,7 +1,7 @@
 # src/modules/product/product_routes.py
 
 from flask import Blueprint, request # Importa request
-from ..controllers.product_controller import ProductController
+from src.controllers.product_controller import ProductController
 
 # El prefijo '/api/products' ya está definido en app.py
 product_bp = Blueprint('products', __name__)

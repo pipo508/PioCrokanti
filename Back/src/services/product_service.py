@@ -1,7 +1,6 @@
 # src/modules/product/product_service.py
 
-from ..repositories.product_repository import ProductRepository
-# Asumimos que tienes un repositorio de categorías para validación
+from src.repositories.product_repository import ProductRepository# Asumimos que tienes un repositorio de categorías para validación
 from src.repositories.category_repository import CategoryRepository
 from src.utils.exceptions import ValidationError, NotFoundError
 
@@ -10,6 +9,7 @@ class ProductService:
         self.product_repository = ProductRepository()
         self.category_repository = CategoryRepository() # Para validar categorías
     
+    # ... el resto del archivo se mantiene igual ...
     def get_all_products(self):
         return self.product_repository.get_all()
     

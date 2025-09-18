@@ -1,7 +1,7 @@
 # src/modules/product/product_controller.py
 
 from flask import jsonify, request
-from ..services.product_service import ProductService
+from src.services.product_service import ProductService
 from src.utils.exceptions import ValidationError, NotFoundError
 
 class ProductController:
