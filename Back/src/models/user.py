@@ -1,3 +1,5 @@
+# /models/user.py (archivo modificado)
+
 from src.config.database import db
 from datetime import datetime
 
@@ -11,6 +13,11 @@ class User(db.Model):
     direccion = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # --- RELACIÓN AÑADIDA ---
+    # Un usuario (User) puede tener muchos pedidos (Order).
+    # Con esto, podrás hacer `mi_usuario.orders` para obtener su historial.
+    orders = db.relationship('Order', backref='user', lazy=True)
 
     def __init__(self, nombre, apellido, telefono, direccion):
         self.nombre = nombre
@@ -32,4 +39,5 @@ class User(db.Model):
             'direccion': self.direccion,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            # No incluimos los pedidos aquí para no sobrecargar la respuesta por defecto
         }

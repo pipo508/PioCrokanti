@@ -1,3 +1,5 @@
+# /models/category.py (archivo modificado)
+
 from src.config.database import db
 from datetime import datetime
 
@@ -11,8 +13,10 @@ class Category(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relación con productos (se definirá cuando creemos el modelo Product)
-    # products = db.relationship('Product', backref='category', lazy=True)
+    # --- RELACIÓN ACTIVADA ---
+    # Al descomentar esta línea, ahora puedes hacer `mi_categoria.products`
+    # y te devolverá una lista con todos los productos de esa categoría.
+    products = db.relationship('Product', backref='category', lazy=True)
 
     def __init__(self, nombre, descripcion=None):
         self.nombre = nombre
