@@ -1,0 +1,1 @@
+export default function Footer() { return <footer style={{ padding: '1rem', background: '#333', marginTop: '2rem' }}>Pie de Página</footer>; }

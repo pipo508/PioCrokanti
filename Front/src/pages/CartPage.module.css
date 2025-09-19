@@ -1,0 +1,93 @@
+/* src/pages/CartPage.module.css */
+
+.cartContainer {
+  padding: 2rem;
+  max-width: 900px;
+  margin: auto;
+}
+
+.title {
+  color: var(--color-yellow);
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2a2a2a;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.itemDetails {
+  flex-grow: 1;
+}
+
+.itemDetails h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+}
+
+.itemDetails p {
+  color: #ccc;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 1.5rem;
+}
+
+.quantityButton {
+  background-color: var(--color-red);
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.removeButton {
+  background-color: transparent;
+  color: #aaa;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.cartSummary {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--color-yellow);
+  text-align: right;
+}
+
+.total {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.checkoutButton {
+  background-color: var(--color-yellow);
+  color: var(--color-black);
+  padding: 0.8rem 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+
+.emptyCart {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #888;
+}
