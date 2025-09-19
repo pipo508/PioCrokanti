@@ -46,51 +46,17 @@ class OrderController:
 
     def create_order(self):
         try:
-            print("=== CREATE ORDER ===")
+            print("=== CREATE ORDER (versión corregida) ===")
             
-            # 1. Verificar Content-Type
-            print(f"Content-Type: {request.content_type}")
-            
-            # 2. Obtener datos raw
-            raw_data = request.get_data(as_text=True)
-            print(f"Raw data: {raw_data}")
-            
-            # 3. Intentar obtener JSON
+            # 1. Obtener el JSON que envía el frontend
             data = request.get_json()
-            print(f"Parsed JSON: {data}")
-            print(f"Tipo de data: {type(data)}")
-            
-            # 4. Verificar si data es None o vacío
-            if data is None:
-                print("ERROR: data es None")
-                return jsonify({
-                    'error': 'No se recibieron datos JSON válidos',
-                    'content_type': request.content_type,
-                    'raw_data': raw_data[:200] if raw_data else None
-                }), 400
-            
-            # 5. Verificar estructura del JSON
-            if not isinstance(data, dict):
-                print(f"ERROR: data no es dict, es {type(data)}")
-                return jsonify({'error': 'Los datos deben ser un objeto JSON'}), 400
-            
-            # 6. Imprimir claves disponibles
-            print(f"Claves en data: {list(data.keys())}")
-            
-            # 7. Manejar estructura anidada si es necesario
-            if 'json' in data and 'user' not in data:
-                print("Detectada estructura anidada, extrayendo datos...")
-                data = data['json']
-                print(f"Nuevas claves después de extraer: {list(data.keys())}")
-            
-            # 8. Verificar campo user específicamente
-            user_data = data.get('user')
-            items_data = data.get('items')
-            
-            print(f"Campo 'user': {user_data}")
-            print(f"Campo 'items': {items_data}")
-            
-            # 9. Crear el pedido
+            print(f"JSON recibido: {data}")
+
+            # 2. Validar que no esté vacío
+            if not data:
+                return jsonify({'error': 'No se recibieron datos JSON válidos'}), 400
+
+            # 3. Pasar los datos DIRECTAMENTE al servicio
             order = self.order_service.create_order(data)
             print(f"Pedido creado exitosamente: {order.id}")
             
@@ -100,7 +66,7 @@ class OrderController:
                 return jsonify(self._order_to_dict(order)), 201
                 
         except ValidationError as e:
-            print(f"Error de validación: {str(e)}")
+            print(f"Error de validación desde el servicio: {str(e)}")
             return jsonify({'error': str(e)}), 400
         except Exception as e:
             print(f"Error interno en create_order: {str(e)}")

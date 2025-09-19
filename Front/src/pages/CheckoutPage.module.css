@@ -1,0 +1,58 @@
+/* src/pages/CheckoutPage.module.css */
+
+.checkoutContainer {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
+
+.title {
+  color: var(--color-yellow);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.formGroup input {
+  padding: 0.8rem;
+  border: 1px solid #555;
+  background-color: #3e3e3e;
+  color: var(--color-white);
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.submitButton {
+  background-color: var(--color-red);
+  color: var(--color-white);
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #c62828;
+}
