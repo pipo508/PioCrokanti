@@ -1,5 +1,5 @@
 from src.config.database import db
-from src.models.User import User
+from src.models.user import User
 
 class UserRepository:
     def get_all(self):
