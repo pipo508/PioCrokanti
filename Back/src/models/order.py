@@ -8,18 +8,14 @@ class Order(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     total = db.Column(db.Float, nullable=False)
-    estado = db.Column(db.String(50), default='Recibido', nullable=False) # Ej: Recibido, En preparación, Entregado, etc.
+    estado = db.Column(db.String(50), default='Recibido', nullable=False)
     direccion_entrega = db.Column(db.String(255), nullable=False)
     metodo_pago = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # --- Conectores ---
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
-    # --- Relación ---
-    # Un pedido (Order) tiene muchos detalles (OrderDetail)
-    # cascade="all, delete-orphan" significa que si borras un pedido, se borran sus detalles automáticamente.
     details = db.relationship('OrderDetail', backref='order', lazy=True, cascade="all, delete-orphan")
 
     def __init__(self, user_id, total, direccion_entrega, metodo_pago=None):
@@ -39,6 +35,8 @@ class Order(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
             'user_id': self.user_id,
+            # --- CORRECCIÓN 1: AÑADIR DATOS DEL USUARIO ---
+            'user': self.user.to_dict() if self.user else None,
             'details': [detail.to_dict() for detail in self.details] if self.details else []
         }
 
@@ -48,12 +46,8 @@ class OrderDetail(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     cantidad = db.Column(db.Integer, nullable=False)
-    
-    # Guardamos el precio del producto al momento de la compra.
-    # Es importante por si en el futuro cambias los precios de los productos.
     precio_unitario = db.Column(db.Float, nullable=False) 
 
-    # --- Conectores ---
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     product = db.relationship('Product', backref='order_details', lazy=True)
@@ -64,6 +58,8 @@ class OrderDetail(db.Model):
             'id': self.id,
             'cantidad': self.cantidad,
             'precio_unitario': self.precio_unitario,
+            # --- CORRECCIÓN 2: CALCULAR SUBTOTAL ---
+            'subtotal': self.cantidad * self.precio_unitario,
             'order_id': self.order_id,
             'product_id': self.product_id,
             'product': {
