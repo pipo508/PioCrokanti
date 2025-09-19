@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Mercado Pago - Pedido de Comida</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .product {
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .product:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .product h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .product p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .qty-btn {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .qty-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .quantity {
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #dee2e6;
+        }
+        
+        .customer-info {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .pay-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
+        }
+        
+        .pay-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .whatsapp-btn {
+            width: 100%;
+            padding: 15px;
+            background: #25d366;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #20c157;
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍕 Pizzería Demo</h1>
+            <p>Pedido rápido con Mercado Pago</p>
+        </div>
+        
+        <div class="content">
+            <div class="product">
+                <h3>Pizza Margherita</h3>
+                <p>Salsa de tomate, mozzarella fresca, albahaca</p>
+                <div class="price">$2.500</div>
+                <div class="quantity-controls">
+                    <button class="qty-btn" onclick="changeQuantity(-1)">−</button>
+                    <span class="quantity" id="quantity">1</span>
+                    <button class="qty-btn" onclick="changeQuantity(1)">+</button>
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <h3>Resumen del Pedido</h3>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                    <span>Pizza Margherita × <span id="summary-qty">1</span></span>
+                    <span>$<span id="summary-price">2500</span></span>
+                </div>
+                <div class="total">
+                    <span>Total:</span>
+                    <span>$<span id="total-price">2500</span></span>
+                </div>
+            </div>
+            
+            <div class="customer-info">
+                <h3>Datos del Cliente</h3>
+                <div class="form-group">
+                    <label for="customerName">Nombre completo:</label>
+                    <input type="text" id="customerName" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">Teléfono:</label>
+                    <input type="tel" id="customerPhone" placeholder="Tu número de WhatsApp">
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">Dirección:</label>
+                    <input type="text" id="customerAddress" placeholder="Tu dirección de entrega">
+                </div>
+            </div>
+            
+            <div id="payment-status" class="status hidden"></div>
+            
+            <button class="pay-btn" onclick="createPayment()">
+                💳 Pagar con Mercado Pago
+            </button>
+            
+            <a href="#" class="whatsapp-btn" id="whatsapp-link" style="display: none;">
+                📱 Confirmar por WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let quantity = 1;
+        const unitPrice = 2500;
+        
+        // Simular datos de Mercado Pago (en producción vendrían del servidor)
+        const MP_PUBLIC_KEY = 'TEST-tu-public-key-aqui';
+        const BUSINESS_PHONE = '542604384793'; // Reemplazar con tu número
+        
+        function changeQuantity(change) {
+            quantity = Math.max(1, quantity + change);
+            document.getElementById('quantity').textContent = quantity;
+            document.getElementById('summary-qty').textContent = quantity;
+            
+            const totalPrice = unitPrice * quantity;
+            document.getElementById('summary-price').textContent = totalPrice;
+            document.getElementById('total-price').textContent = totalPrice;
+        }
+        
+        function validateForm() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+            
+            if (!name || !phone || !address) {
+                alert('Por favor completa todos los campos');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('payment-status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.classList.remove('hidden');
+        }
+        
+        function generateOrderData() {
+            return {
+                id: 'ORDER_' + Date.now(),
+                customer: {
+                    name: document.getElementById('customerName').value.trim(),
+                    phone: document.getElementById('customerPhone').value.trim(),
+                    address: document.getElementById('customerAddress').value.trim()
+                },
+                items: [{
+                    name: 'Pizza Margherita',
+                    quantity: quantity,
+                    unit_price: unitPrice,
+                    total: unitPrice * quantity
+                }],
+                total: unitPrice * quantity,
+                timestamp: new Date().toLocaleString()
+            };
+        }
+        
+        function generateWhatsAppMessage(orderData, paymentLink) {
+            const message = `🍕 *NUEVO PEDIDO*
+
+📝 *Pedido #${orderData.id}*
+👤 *Cliente:* ${orderData.customer.name}
+📱 *Teléfono:* ${orderData.customer.phone}
+📍 *Dirección:* ${orderData.customer.address}
+
+🛒 *Productos:*
+• Pizza Margherita × ${quantity} = $${orderData.total}
+
+💰 *Total: $${orderData.total}*
+
+💳 *Link de pago:* ${paymentLink}
+
+⏰ *Hora:* ${orderData.timestamp}`;
+            
+            return encodeURIComponent(message);
+        }
+        
+        async function createPayment() {
+            if (!validateForm()) {
+                return;
+            }
+            
+            showStatus('Creando link de pago...', 'pending');
+            
+            const orderData = generateOrderData();
+            
+            try {
+                // Llamada REAL a tu servidor
+                const response = await fetch('http://localhost:3001/create-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        items: [{
+                            title: 'Pizza Margherita',
+                            unit_price: unitPrice,
+                            quantity: quantity
+                        }],
+                        customer: {
+                            name: orderData.customer.name,
+                            surname: '',
+                            phone: orderData.customer.phone,
+                            address: orderData.customer.address,
+                            email: 'test@test.com'
+                        },
+                        orderId: orderData.id
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const paymentData = await response.json();
+                
+                showStatus('¡Link de pago creado! ✅', 'success');
+                
+                // Preparar WhatsApp con link real
+                const whatsappMessage = generateWhatsAppMessage(orderData, paymentData.init_point);
+                const whatsappLink = `https://wa.me/${BUSINESS_PHONE}?text=${whatsappMessage}`;
+                
+                document.getElementById('whatsapp-link').href = whatsappLink;
+                document.getElementById('whatsapp-link').style.display = 'inline-block';
+                
+                // Abrir Mercado Pago en nueva ventana
+                setTimeout(() => {
+                    if (confirm('¿Proceder al pago en Mercado Pago?')) {
+                        window.open(paymentData.init_point, '_blank');
+                        
+                        // Comenzar a consultar el estado del pedido
+                        checkOrderStatus(orderData.id);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                showStatus('Error al crear el pago. Intenta nuevamente.', 'pending');
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        function simulatePaymentFlow() {
+            showStatus('Simulando proceso de pago...', 'pending');
+            
+            // Simular diferentes estados de pago
+            const states = [
+                { message: 'Procesando pago...', type: 'pending' },
+                { message: '¡Pago aprobado! ✅', type: 'success' }
+            ];
+            
+            states.forEach((state, index) => {
+                setTimeout(() => {
+                    showStatus(state.message, state.type);
+                    
+                    if (index === states.length - 1) {
+                        // Simular webhook de confirmación
+                        setTimeout(() => {
+                            alert('🎉 ¡Pago confirmado!\\n\\nEl restaurante recibió la notificación y comenzará a preparar tu pedido.');
+                        }, 1000);
+                    }
+                }, (index + 1) * 2000);
+            });
+        }
+        
+        // Función para consultar el estado del pedido en tiempo real
+        async function checkOrderStatus(orderId) {
+            const maxAttempts = 30; // 5 minutos máximo
+            let attempts = 0;
+            
+            const checkStatus = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3001/order/${orderId}`);
+                    const order = await response.json();
+                    
+                    console.log('Estado actual:', order.status);
+                    
+                    switch (order.status) {
+                        case 'paid':
+                            showStatus('¡Pago confirmado! ✅ El restaurante preparará tu pedido.', 'success');
+                            return; // Detener consultas
+                            
+                        case 'payment_rejected':
+                            showStatus('❌ Pago rechazado. Intenta con otro método de pago.', 'pending');
+                            return;
+                            
+                        case 'pending_payment':
+                            if (attempts < maxAttempts) {
+                                showStatus(`⏳ Esperando confirmación de pago... (${attempts + 1}/30)`, 'pending');
+                                setTimeout(checkStatus, 10000); // Consultar cada 10 segundos
+                            } else {
+                                showStatus('⚠️ Tiempo de espera agotado. Consulta el estado manualmente.', 'pending');
+                            }
+                            break;
+                    }
+                    
+                    attempts++;
+                    
+                } catch (error) {
+                    console.error('Error consultando estado:', error);
+                    if (attempts < maxAttempts) {
+                        setTimeout(checkStatus, 10000);
+                        attempts++;
+                    }
+                }
+            };
+            
+            // Esperar 5 segundos antes de la primera consulta
+            setTimeout(checkStatus, 5000);
+        }
+    </script>
+</body>
+</html>

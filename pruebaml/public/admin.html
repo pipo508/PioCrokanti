@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Restaurante</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f8f9fa; color:#333; }
+  .header { background:linear-gradient(135deg,#2c3e50,#3498db); color:white; padding:20px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.1); position:relative;}
+  .connection-status { position:absolute; top:15px; right:20px; padding:5px 15px; border-radius:20px; font-size:0.8rem; font-weight:bold; }
+  .connection-status.connected { background:#27ae60; color:white; }
+  .connection-status.disconnected { background:#e74c3c; color:white; }
+  .connection-status.connecting { background:#f39c12; color:white; }
+  
+  .container { max-width:1200px; margin:0 auto; padding:20px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
+  .stat-card { background:white; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; transition:all 0.3s ease;}
+  .stat-card:hover { transform:translateY(-5px);}
+  .stat-card.updated { animation:pulse 0.5s ease-in-out; }
+  @keyframes pulse { 0% {transform:scale(1);} 50% {transform:scale(1.05);} 100% {transform:scale(1);} }
+  
+  .stat-number { font-size:2rem; font-weight:bold; margin-bottom:10px; transition:all 0.3s ease;}
+  .stat-number.pending { color:#f39c12; }
+  .stat-number.paid { color:#27ae60; }
+  .stat-number.rejected { color:#e74c3c; }
+  .stat-number.total { color:#3498db; }
+  
+  .controls { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+  .controls-left { display:flex; gap:10px; align-items:center; }
+  .controls-right { display:flex; gap:10px; align-items:center; }
+  
+  .refresh-btn, .filter-btn { background:#3498db; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-size:1rem; transition:all 0.3s ease; }
+  .refresh-btn:hover, .filter-btn:hover { background:#2980b9; }
+  .refresh-btn:disabled { opacity:0.6; cursor:not-allowed; }
+  
+  .filter-btn.active { background:#27ae60; }
+  .auto-refresh { display:flex; align-items:center; gap:10px; color:#666; }
+  .toggle { position:relative; width:50px; height:25px; background:#ddd; border-radius:25px; cursor:pointer; transition:background 0.3s; }
+  .toggle.active { background:#27ae60; }
+  .toggle::after { content:''; position:absolute; width:21px; height:21px; background:white; border-radius:50%; top:2px; left:2px; transition:transform 0.3s; }
+  .toggle.active::after { transform:translateX(25px); }
+  
+  .orders-section { background:white; border-radius:10px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+  .section-title { font-size:1.5rem; margin-bottom:20px; color:#2c3e50; border-bottom:2px solid #3498db; padding-bottom:10px;}
+  
+  .order-card { border:2px solid #e0e0e0; border-radius:10px; padding:20px; margin-bottom:20px; transition:all 0.3s ease; position:relative; opacity:1;}
+  .order-card.pending { border-color:#f39c12;}
+  .order-card.paid { border-color:#27ae60;}
+  .order-card.rejected { border-color:#e74c3c;}
+  .order-card.new { animation:slideInDown 0.5s ease-out; }
+  .order-card.updated { animation:highlightOrder 1s ease-out; }
+  
+  @keyframes slideInDown { from {opacity:0; transform:translateY(-30px);} to {opacity:1; transform:translateY(0);} }
+  @keyframes highlightOrder { 0% {background:#fff3cd;} 100% {background:white;} }
+  
+  .order-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+  .order-id { font-weight:bold; font-size:1.1rem; }
+  .status-badge { padding:5px 15px; border-radius:20px; font-size:0.8rem; font-weight:bold; text-transform:uppercase; transition:all 0.3s ease;}
+  .status-badge.pending { background:#fff3cd; color:#856404; }
+  .status-badge.paid { background:#d4edda; color:#155724; }
+  .status-badge.rejected { background:#f8d7da; color:#721c24; }
+  
+  .order-details { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:15px;}
+  .customer-info h4, .items-info h4 { margin-bottom:10px; color:#2c3e50; }
+  .customer-info p, .items-info p { margin-bottom:5px; color:#666; }
+  .order-total { text-align:right; font-size:1.2rem; font-weight:bold; color:#27ae60; }
+  
+  .loading { text-align:center; padding:20px; color:#666; }
+  .empty { text-align:center; padding:40px; color:#999; }
+  .timestamp { font-size:0.9rem; color:#666; position:absolute; top:15px; right:120px; }
+  
+  .notification { position:fixed; top:20px; right:20px; padding:15px 20px; background:#27ae60; color:white; border-radius:10px; z-index:1000; transform:translateX(300px); transition:transform 0.3s ease; max-width:300px; }
+  .notification.show { transform:translateX(0); }
+  .notification.error { background:#e74c3c; }
+  .notification.warning { background:#f39c12; }
+  
+  @media(max-width:768px){ 
+    .order-details { grid-template-columns:1fr; } 
+    .order-header { flex-direction:column; align-items:flex-start; gap:10px; }
+    .controls { flex-direction:column; align-items:stretch; }
+    .controls-left, .controls-right { justify-content:center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="connection-status connecting" id="connectionStatus">Conectando...</div>
+  <h1>🍕 Panel de Administración</h1>
+  <p>Gestión de Pedidos en Tiempo Real</p>
+</div>
+
+<div class="container">
+  <div class="stats" id="stats">
+    <div class="stat-card" id="pending-card">
+      <div class="stat-number pending" id="pending-count">0</div>
+      <div>Pedidos Pendientes</div>
+    </div>
+    <div class="stat-card" id="paid-card">
+      <div class="stat-number paid" id="paid-count">0</div>
+      <div>Pedidos Pagados</div>
+    </div>
+    <div class="stat-card" id="rejected-card">
+      <div class="stat-number rejected" id="rejected-count">0</div>
+      <div>Pagos Rechazados</div>
+    </div>
+    <div class="stat-card" id="revenue-card">
+      <div class="stat-number total" id="total-revenue">$0</div>
+      <div>Revenue Total</div>
+    </div>
+  </div>
+
+  <div class="orders-section">
+    <div class="controls">
+      <div class="controls-left">
+        <h2 class="section-title">Pedidos Recientes</h2>
+        <button class="filter-btn" data-status="all">Todos</button>
+        <button class="filter-btn" data-status="pending_payment">Pendientes</button>
+        <button class="filter-btn" data-status="paid">Pagados</button>
+        <button class="filter-btn" data-status="payment_rejected">Rechazados</button>
+      </div>
+      <div class="controls-right">
+        <div class="auto-refresh">
+          <label>Auto-actualizar:</label>
+          <div class="toggle active" id="autoRefreshToggle"></div>
+        </div>
+        <button class="refresh-btn" onclick="manualRefresh()">🔄 Actualizar</button>
+      </div>
+    </div>
+    <div id="orders-container"><div class="loading">Conectando al servidor...</div></div>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script>
+// Variables globales
+let orders = [];
+let filteredOrders = [];
+let currentFilter = 'all';
+let autoRefreshEnabled = true;
+let eventSource = null;
+let reconnectTimeout = null;
+let stats = { pending: 0, paid: 0, rejected: 0, revenue: 0 };
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+  setupEventListeners();
+  connectSSE();
+});
+
+// Configurar listeners
+function setupEventListeners() {
+  // Filtros
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.status;
+      filterAndRenderOrders();
+    });
+  });
+  
+  // Toggle auto-refresh
+  document.getElementById('autoRefreshToggle').addEventListener('click', (e) => {
+    autoRefreshEnabled = !autoRefreshEnabled;
+    e.target.classList.toggle('active', autoRefreshEnabled);
+    if (autoRefreshEnabled && !eventSource) {
+      connectSSE();
+    } else if (!autoRefreshEnabled && eventSource) {
+      disconnectSSE();
+    }
+  });
+  
+  // Activar primer filtro
+  document.querySelector('.filter-btn[data-status="all"]').classList.add('active');
+}
+
+// ====== SERVER-SENT EVENTS ======
+function connectSSE() {
+  if (eventSource) {
+    eventSource.close();
+  }
+  
+  updateConnectionStatus('connecting');
+  showNotification('Conectando al servidor...', 'warning');
+  
+  eventSource = new EventSource('http://localhost:3001/events');
+  
+  eventSource.onopen = () => {
+    updateConnectionStatus('connected');
+    showNotification('✅ Conectado en tiempo real', 'success');
+    clearTimeout(reconnectTimeout);
+  };
+  
+  eventSource.onmessage = (event) => {
+    console.log('📨 Mensaje SSE:', event);
+  };
+  
+  eventSource.addEventListener('init', (event) => {
+    const data = JSON.parse(event.data);
+    console.log('🚀 Datos iniciales recibidos');
+    stats = data.stats;
+    updateStats(stats);
+    loadOrdersFromServer();
+  });
+  
+  eventSource.addEventListener('newOrder', (event) => {
+    const data = JSON.parse(event.data);
+    console.log('🆕 Nueva orden recibida:', data.order.id);
+    
+    // Añadir al principio
+    orders.unshift(data.order);
+    stats = data.stats;
+    
+    updateStats(stats);
+    filterAndRenderOrders();
+    
+    // Resaltar nueva orden
+    setTimeout(() => {
+      const newOrderEl = document.querySelector(`[data-order-id="${data.order.id}"]`);
+      if (newOrderEl) {
+        newOrderEl.classList.add('new');
+      }
+    }, 100);
+    
+    playNotificationSound();
+    showNotification(`🍕 Nueva orden: ${data.order.customer.name}`, 'success');
+  });
+  
+  eventSource.addEventListener('orderUpdate', (event) => {
+    const data = JSON.parse(event.data);
+    console.log('🔄 Orden actualizada:', data.orderId, data.oldStatus, '→', data.newStatus);
+    
+    // Actualizar orden existente
+    const orderIndex = orders.findIndex(o => o.id === data.orderId);
+    if (orderIndex !== -1) {
+      orders[orderIndex] = data.order;
+      stats = data.stats;
+      
+      updateStats(stats);
+      filterAndRenderOrders();
+      
+      // Resaltar orden actualizada
+      setTimeout(() => {
+        const updatedOrderEl = document.querySelector(`[data-order-id="${data.orderId}"]`);
+        if (updatedOrderEl) {
+          updatedOrderEl.classList.add('updated');
+        }
+      }, 100);
+      
+      if (data.newStatus === 'paid') {
+        playNotificationSound();
+        showNotification(`💰 Pago confirmado: ${data.order.customer.name}`, 'success');
+      } else if (data.newStatus === 'payment_rejected') {
+        showNotification(`❌ Pago rechazado: ${data.order.customer.name}`, 'error');
+      }
+    }
+  });
+  
+  eventSource.onerror = (event) => {
+    console.error('❌ Error en SSE:', event);
+    updateConnectionStatus('disconnected');
+    showNotification('❌ Conexión perdida. Reintentando...', 'error');
+    
+    // Reconectar después de 5 segundos
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = setTimeout(() => {
+      if (autoRefreshEnabled) {
+        connectSSE();
+      }
+    }, 5000);
+  };
+}
+
+function disconnectSSE() {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
+  updateConnectionStatus('disconnected');
+}
+
+function updateConnectionStatus(status) {
+  const statusEl = document.getElementById('connectionStatus');
+  statusEl.className = `connection-status ${status}`;
+  
+  switch (status) {
+    case 'connected':
+      statusEl.textContent = '🟢 Conectado';
+      break;
+    case 'connecting':
+      statusEl.textContent = '🟡 Conectando...';
+      break;
+    case 'disconnected':
+      statusEl.textContent = '🔴 Desconectado';
+      break;
+  }
+}
+
+// ====== FUNCIONES DE DATOS ======
+async function loadOrdersFromServer() {
+  try {
+    const response = await fetch('http://localhost:3001/orders?limit=100');
+    const data = await response.json();
+    orders = data.orders || [];
+    
+    if (data.stats) {
+      stats = data.stats;
+      updateStats(stats);
+    }
+    
+    filterAndRenderOrders();
+    console.log(`📦 Cargadas ${orders.length} órdenes`);
+  } catch (error) {
+    console.error('❌ Error cargando órdenes:', error);
+    document.getElementById('orders-container').innerHTML = '<div class="empty">❌ Error cargando pedidos</div>';
+  }
+}
+
+async function manualRefresh() {
+  const btn = document.querySelector('.refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '🔄 Actualizando...';
+  
+  try {
+    await loadOrdersFromServer();
+    showNotification('✅ Pedidos actualizados', 'success');
+  } catch (error) {
+    showNotification('❌ Error actualizando', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄 Actualizar';
+  }
+}
+
+// ====== FUNCIONES DE RENDERIZADO ======
+function filterAndRenderOrders() {
+  if (currentFilter === 'all') {
+    filteredOrders = orders;
+  } else {
+    filteredOrders = orders.filter(order => order.status === currentFilter);
+  }
+  
+  renderOrders();
+}
+
+function renderOrders() {
+  const container = document.getElementById('orders-container');
+  
+  if (!filteredOrders.length) {
+    container.innerHTML = '<div class="empty">🔍 No hay pedidos para mostrar</div>';
+    return;
+  }
+
+  const html = filteredOrders.map(order => {
+    const statusText = getStatusText(order.status);
+    const timestamp = new Date(order.created_at).toLocaleString();
+    return `
+      <div class="order-card ${order.status}" data-order-id="${order.id}">
+        <div class="timestamp">${timestamp}</div>
+        <div class="order-header">
+          <div class="order-id">Pedido #${order.id}</div>
+          <span class="status-badge ${order.status}">${statusText}</span>
+        </div>
+        <div class="order-details">
+          <div class="customer-info">
+            <h4>👤 Cliente</h4>
+            <p><strong>Nombre:</strong> ${order.customer.name}</p>
+            <p><strong>Teléfono:</strong> ${order.customer.phone}</p>
+            <p><strong>Dirección:</strong> ${order.customer.address}</p>
+          </div>
+          <div class="items-info">
+            <h4>🛒 Productos</h4>
+            ${order.items.map(i => `<p>${i.title || i.name} × ${i.quantity} = $${(i.unit_price * i.quantity)}</p>`).join('')}
+          </div>
+        </div>
+        <div class="order-total">Total: $${order.total}</div>
+        ${order.payment_id ? `<p style="margin-top:10px;color:#666;font-size:0.9rem;">ID Pago: ${order.payment_id}</p>` : ''}
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = html;
+}
+
+function updateStats(newStats) {
+  const elements = {
+    'pending-count': newStats.pending,
+    'paid-count': newStats.paid,
+    'rejected-count': newStats.rejected,
+    'total-revenue': `$${newStats.revenue}`
+  };
+  
+  Object.entries(elements).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el.textContent !== value.toString()) {
+      el.textContent = value;
+      // Animación de actualización
+      const card = el.closest('.stat-card');
+      card.classList.add('updated');
+      setTimeout(() => card.classList.remove('updated'), 500);
+    }
+  });
+}
+
+function getStatusText(status) {
+  switch (status) {
+    case 'pending_payment': return 'Pendiente de Pago';
+    case 'paid': return 'Pagado';
+    case 'payment_rejected': return 'Pago Rechazado';
+    default: return 'Desconocido';
+  }
+}
+
+// ====== NOTIFICACIONES ======
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('notification');
+  notification.textContent = message;
+  notification.className = `notification ${type} show`;
+  
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 4000);
+}
+
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 800;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (error) {
+    console.log('🔇 Audio no disponible:', error);
+  }
+}
+
+// Cleanup al cerrar página
+window.addEventListener('beforeunload', () => {
+  if (eventSource) {
+    eventSource.close();
+  }
+  clearTimeout(reconnectTimeout);
+});
+</script>
+
+</body>
+</html>
