@@ -12,7 +12,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        // Hacemos la petición al endpoint que nos da todos los pedidos
         const response = await api.get('/orders/');
         setOrders(response.data);
       } catch (err) {
@@ -24,7 +23,7 @@ export default function AdminDashboard() {
     };
 
     fetchOrders();
-  }, []); // El array vacío asegura que esto se ejecute solo una vez
+  }, []);
 
   if (loading) {
     return <div className={styles.loading}>Cargando pedidos...</div>;
@@ -52,7 +51,7 @@ export default function AdminDashboard() {
           {orders.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
-              <td>{order.user.nombre_completo}</td>
+              <td>{order.user ? order.user.nombre_completo : 'Usuario no disponible'}</td>
               <td>{order.direccion_entrega}</td>
               <td>${order.total.toFixed(2)}</td>
               <td>

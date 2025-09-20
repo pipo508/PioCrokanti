@@ -5,8 +5,8 @@ from src.models import Product
 
 class ProductRepository:
     def get_all(self):
-        """Devuelve todos los productos que están activos."""
-        return Product.query.filter_by(activo=True).all()
+        """Devuelve todos los productos, tanto activos como inactivos, ordenados por ID."""
+        return Product.query.order_by(Product.id).all()
     
     def get_by_id(self, product_id):
         """Busca un producto por su ID, sin importar si está activo o no."""
@@ -28,10 +28,16 @@ class ProductRepository:
             db.session.commit()
         return product
 
-    def delete(self, product_id):
-        """Realiza un borrado lógico del producto (soft delete)."""
-        product = self.get_by_id(product_id)
+    def deactivate(self, product):
+        """Marca un producto como inactivo (soft delete)."""
         if product:
             product.activo = False
+            db.session.commit()
+        return product
+
+    def activate(self, product):
+        """Marca un producto como activo."""
+        if product:
+            product.activo = True
             db.session.commit()
         return product

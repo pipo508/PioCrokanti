@@ -83,7 +83,8 @@ class OrderService:
         order_data = {
             'user_id': user.id,
             'total': total,
-            'direccion_entrega': user.direccion  # Usamos la dirección del usuario
+            'direccion_entrega': user.direccion,  # Usamos la dirección del usuario
+            'metodo_pago': data.get('payment_method') # <-- AÑADIR MÉTODO DE PAGO
         }
         
         try:

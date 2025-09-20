@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children }) {
 
   // Si el usuario NO está autenticado, lo redirigimos a la página de login.
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Si SÍ está autenticado, mostramos el componente que está protegiendo.

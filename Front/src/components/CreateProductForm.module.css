@@ -1,0 +1,67 @@
+/* src/components/CreateProductForm.module.css */
+
+.formContainer {
+  background-color: #2a2a2a;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.formContainer h2 {
+  color: var(--color-yellow);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #555;
+  background-color: #3e3e3e;
+  color: var(--color-white);
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.formGroup textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.submitButton {
+  grid-column: 1 / -1; /* Ocupa todo el ancho */
+  background-color: var(--color-yellow);
+  color: #1a1a1a;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #e6c300;
+}

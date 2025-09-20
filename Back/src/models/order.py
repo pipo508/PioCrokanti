@@ -38,7 +38,7 @@ class Order(db.Model):
             'metodo_pago': self.metodo_pago,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
-            'user_id': self.user_id,
+            'user': self.user.to_dict() if self.user else None, # Incluir datos del usuario
             'details': [detail.to_dict() for detail in self.details] if self.details else []
         }
 

@@ -16,6 +16,8 @@ import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import CategoryProductsPage from './pages/CategoryProductsPage';
+import ProductManagementPage from './pages/ProductManagementPage';
+import EditProductPage from './pages/EditProductPage'; // Importar la página de edición de producto
 
 function App() {
   return (
@@ -29,16 +31,20 @@ function App() {
           <Route path="/menu/:categoryId" element={<CategoryProductsPage />} />
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<LoginPage />} />
 
-          {/* Ruta de Administrador Protegida */}
+          {/* Rutas de Administrador Protegidas */}
           <Route
             path="/admin/dashboard"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
+            element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/products"
+            element={<ProtectedRoute><ProductManagementPage /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/products/:productId/edit"
+            element={<ProtectedRoute><EditProductPage /></ProtectedRoute>}
           />
 
           {/* Ruta para páginas no encontradas */}

@@ -33,8 +33,7 @@
   background-color: #2a2a2a;
 }
 
-.statusRecibido {
-  background-color: #4a4a4a;
+.statusRecibido, .statusActivo, .statusInactivo {
   color: white;
   padding: 0.3rem 0.6rem;
   border-radius: 15px;
@@ -42,17 +41,57 @@
   font-weight: bold;
 }
 
-/* Puedes añadir más estilos para otros estados */
-.statusEnPreparacion {
-  background-color: #fdd835; /* Amarillo */
-  color: black;
-  /* ...otros estilos */
+.statusActivo {
+  background-color: #4CAF50; /* Verde */
 }
 
-.statusEntregado {
+.statusInactivo {
+  background-color: #a1a1a1; /* Gris */
+}
+
+.deactivateButton {
+  background-color: var(--color-red);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 0.5rem; /* Espacio entre botones */
+}
+
+.deactivateButton:hover {
+  background-color: #c62828;
+}
+
+.activateButton {
   background-color: #4CAF50; /* Verde */
   color: white;
-  /* ...otros estilos */
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 0.5rem; /* Espacio entre botones */
+}
+
+.activateButton:hover {
+  background-color: #388e3c;
+}
+
+.editButton {
+  background-color: var(--color-blue);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 0.5rem; /* Espacio entre botones */
+}
+
+.editButton:hover {
+  background-color: #0056b3;
 }
 
 .loading, .error {
@@ -60,4 +99,8 @@
   color: var(--color-yellow);
   text-align: center;
   padding: 2rem;
+}
+
+.error {
+  color: var(--color-red);
 }

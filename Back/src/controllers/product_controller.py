@@ -11,13 +11,13 @@ class ProductController:
     def get_all_products(self):
         try:
             products = self.product_service.get_all_products()
-            return jsonify([product.to_dict() for product in products]), 200
+            return jsonify([p.to_dict() for p in products]), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
     def get_product(self, product_id):
         try:
-            product = self.product_service.get_product_by_id(product_id)
+            product = self.product_service.get_product_by_id(product_id, check_active=True)
             return jsonify(product.to_dict()), 200
         except NotFoundError as e:
             return jsonify({'error': str(e)}), 404
@@ -46,10 +46,19 @@ class ProductController:
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    def delete_product(self, product_id):
+    def deactivate_product(self, product_id):
         try:
-            self.product_service.delete_product(product_id)
-            return jsonify({'message': 'Producto desactivado correctamente'}), 200
+            product = self.product_service.deactivate_product(product_id)
+            return jsonify(product.to_dict()), 200
+        except NotFoundError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    def activate_product(self, product_id):
+        try:
+            product = self.product_service.activate_product(product_id)
+            return jsonify(product.to_dict()), 200
         except NotFoundError as e:
             return jsonify({'error': str(e)}), 404
         except Exception as e:
