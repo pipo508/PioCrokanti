@@ -1,0 +1,24 @@
+# ================================
+# PostgreSQL Database
+# ================================
+DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/DB_NAME
+
+# ================================
+# Security
+# ================================
+SECRET_KEY=your-secret-key-here
+
+# ================================
+# Application
+# ================================
+FLASK_DEBUG=True
+
+# ================================
+# Mercado Pago
+# ================================
+MP_ACCESS_TOKEN=your-mercado-pago-access-token-here
+
+# ================================
+# Public URL (Ej: ngrok o dominio en producción)
+# ================================
+PUBLIC_BASE_URL=https://your-public-url-here

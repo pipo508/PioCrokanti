@@ -2,6 +2,9 @@
 
 import mercadopago
 from flask import current_app
+import os
+from dotenv import load_dotenv
+
 
 class MercadoPagoService:
     def __init__(self):
@@ -27,8 +30,11 @@ class MercadoPagoService:
                 "currency_id": "ARS"
             })
             
+        load_dotenv()
+
         # --- URL DE NGROK INSERTADA AQUÍ ---
-        public_base_url = "https://a6950b9a4104.ngrok-free.app"
+        public_base_url = os.getenv("PUBLIC_BASE_URL")
+        print(f"Using PUBLIC_BASE_URL: {public_base_url}")
 
         preference_data = {
             "items": items_for_mp,
