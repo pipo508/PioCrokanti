@@ -16,6 +16,9 @@ import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import CategoryProductsPage from './pages/CategoryProductsPage';
+// --- AÑADIR IMPORTACIONES ---
+import OrderSuccessPage from './pages/OrderSuccessPage';
+import OrderFailurePage from './pages/OrderFailurePage';
 
 function App() {
   return (
@@ -30,6 +33,10 @@ function App() {
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/login" element={<LoginPage />} />
+
+          {/* --- AÑADIR RUTAS DE RESPUESTA DE PAGO --- */}
+          <Route path="/order/success" element={<OrderSuccessPage />} />
+          <Route path="/order/failure" element={<OrderFailurePage />} />
 
           {/* Ruta de Administrador Protegida */}
           <Route

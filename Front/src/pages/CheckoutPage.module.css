@@ -56,3 +56,29 @@
 .submitButton:hover {
   background-color: #c62828;
 }
+
+.paymentOptions {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid #555;
+  border-bottom: 1px solid #555;
+  padding: 1.5rem 0;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  background-color: #3e3e3e;
+  padding: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.paymentOption input {
+  margin-right: 1rem;
+}
+
+.paymentOption.selected {
+  border-color: var(--color-yellow);
+}

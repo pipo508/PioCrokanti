@@ -11,5 +11,9 @@ class Config:
     # Security
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
     
+    # --- AÑADE ESTA LÍNEA ---
+    # Mercado Pago
+    MP_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
+    
     # Application
     DEBUG = os.getenv('FLASK_DEBUG', 'True') == 'True'

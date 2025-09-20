@@ -1,9 +1,8 @@
-# src/modules/order/order_controller.py
+# src/controllers/order_controller.py
 
 from flask import jsonify, request
 from src.services.order_service import OrderService
 from src.utils.exceptions import ValidationError, NotFoundError
-import json
 
 class OrderController:
     def __init__(self):
@@ -11,92 +10,44 @@ class OrderController:
 
     def get_all_orders(self):
         try:
-            print("=== GET ALL ORDERS ===")
             orders = self.order_service.get_all_orders()
-            print(f"Se encontraron {len(orders)} pedidos")
-            
-            orders_dict = []
-            for order in orders:
-                if hasattr(order, 'to_dict'):
-                    orders_dict.append(order.to_dict())
-                else:
-                    orders_dict.append(self._order_to_dict(order))
-            
-            return jsonify(orders_dict), 200
+            return jsonify([order.to_dict() for order in orders]), 200
         except Exception as e:
-            print(f"Error en get_all_orders: {str(e)}")
             return jsonify({'error': str(e)}), 500
 
     def get_order(self, order_id):
         try:
-            print(f"=== GET ORDER {order_id} ===")
             order = self.order_service.get_order_by_id(order_id)
-            
-            if hasattr(order, 'to_dict'):
-                return jsonify(order.to_dict()), 200
-            else:
-                return jsonify(self._order_to_dict(order)), 200
-                
+            return jsonify(order.to_dict()), 200
         except NotFoundError as e:
-            print(f"Pedido no encontrado: {str(e)}")
             return jsonify({'error': str(e)}), 404
         except Exception as e:
-            print(f"Error en get_order: {str(e)}")
             return jsonify({'error': str(e)}), 500
 
-    def create_order(self):
+    def initiate_payment(self):
+        """
+        Endpoint que inicia todo el flujo de pago con Mercado Pago.
+        """
         try:
-            print("=== CREATE ORDER (versión corregida) ===")
+            raw_data = request.get_json()
+            if not raw_data or 'json' not in raw_data:
+                raise ValidationError("Payload inválido. Se esperaba una clave 'json'.")
             
-            # 1. Obtener el JSON que envía el frontend
-            data = request.get_json()
-            print(f"JSON recibido: {data}")
-
-            # 2. Validar que no esté vacío
-            if not data:
-                return jsonify({'error': 'No se recibieron datos JSON válidos'}), 400
-
-            # 3. Pasar los datos DIRECTAMENTE al servicio
-            order = self.order_service.create_order(data)
-            print(f"Pedido creado exitosamente: {order.id}")
+            data_to_process = raw_data.get('json')
             
-            if hasattr(order, 'to_dict'):
-                return jsonify(order.to_dict()), 201
-            else:
-                return jsonify(self._order_to_dict(order)), 201
-                
+            # La variable 'base_url' se elimina, ya no es necesaria aquí.
+            # La llamada al servicio ahora solo necesita los datos.
+            preference = self.order_service.create_order_for_payment(data_to_process)
+            
+            return jsonify(preference), 200
+            
         except ValidationError as e:
-            print(f"Error de validación desde el servicio: {str(e)}")
             return jsonify({'error': str(e)}), 400
         except Exception as e:
-            print(f"Error interno en create_order: {str(e)}")
             import traceback
             traceback.print_exc()
-            return jsonify({'error': "Error interno del servidor"}), 500
+            return jsonify({'error': "Error al crear la preferencia de pago"}), 500
 
-    def _order_to_dict(self, order):
-        """Método auxiliar para convertir Order a diccionario si no tiene to_dict()"""
-        return {
-            'id': order.id,
-            'total': order.total,
-            'estado': order.estado,
-            'direccion_entrega': order.direccion_entrega,
-            'metodo_pago': order.metodo_pago,
-            'created_at': order.created_at.isoformat() if order.created_at else None,
-            'updated_at': order.updated_at.isoformat() if order.updated_at else None,
-            'user_id': order.user_id,
-            'details': [self._detail_to_dict(detail) for detail in order.details] if hasattr(order, 'details') else []
-        }
-
-    def _detail_to_dict(self, detail):
-        """Método auxiliar para convertir OrderDetail a diccionario"""
-        return {
-            'id': detail.id,
-            'cantidad': detail.cantidad,
-            'precio_unitario': detail.precio_unitario,
-            'product_id': detail.product_id,
-            'product_name': detail.product.nombre if hasattr(detail, 'product') and detail.product else None
-        }
     def update_order_status(self, order_id):
         try:
             data = request.get_json()
@@ -106,10 +57,22 @@ class OrderController:
             
             updated_order = self.order_service.update_order_status(order_id, new_status)
             return jsonify(updated_order.to_dict()), 200
+        except (ValidationError, NotFoundError) as e:
+            return jsonify({'error': str(e)}), 400 if isinstance(e, ValidationError) else 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        
+
+    def create_cash_order(self):
+        try:
+            raw_data = request.get_json()
+            if not raw_data or 'json' not in raw_data:
+                raise ValidationError("Payload inválido.")
             
+            data_to_process = raw_data.get('json')
+            order = self.order_service.create_cash_order(data_to_process)
+            return jsonify(order.to_dict()), 201
         except ValidationError as e:
             return jsonify({'error': str(e)}), 400
-        except NotFoundError as e:
-            return jsonify({'error': str(e)}), 404
         except Exception as e:
             return jsonify({'error': str(e)}), 500
