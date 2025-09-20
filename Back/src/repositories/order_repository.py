@@ -26,3 +26,12 @@ class OrderRepository:
             
         db.session.commit()
         return new_order
+    
+    def update(self, order):
+        """
+        Guarda los cambios de un objeto ya existente en la base de datos.
+        """
+        # El objeto 'order' ya fue modificado en el servicio,
+        # solo necesitamos confirmar esos cambios.
+        db.session.commit()
+        return order

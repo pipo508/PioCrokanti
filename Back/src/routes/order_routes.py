@@ -20,3 +20,7 @@ def create_order():
 @order_bp.route('/<int:order_id>', methods=['GET'])
 def get_order(order_id):
     return order_controller.get_order(order_id)
+
+@order_bp.route('/<int:order_id>/status', methods=['PUT'])
+def update_order_status(order_id):
+    return order_controller.update_order_status(order_id)

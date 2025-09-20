@@ -97,3 +97,19 @@ class OrderController:
             'product_id': detail.product_id,
             'product_name': detail.product.nombre if hasattr(detail, 'product') and detail.product else None
         }
+    def update_order_status(self, order_id):
+        try:
+            data = request.get_json()
+            new_status = data.get('estado')
+            if not new_status:
+                raise ValidationError("El campo 'estado' es requerido.")
+            
+            updated_order = self.order_service.update_order_status(order_id, new_status)
+            return jsonify(updated_order.to_dict()), 200
+            
+        except ValidationError as e:
+            return jsonify({'error': str(e)}), 400
+        except NotFoundError as e:
+            return jsonify({'error': str(e)}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500

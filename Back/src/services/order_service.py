@@ -90,3 +90,18 @@ class OrderService:
             return self.order_repository.create(order_data, details_to_create)
         except Exception as e:
             raise ValidationError(f"Error al crear el pedido: {str(e)}")
+        
+    def update_order_status(self, order_id, new_status):
+        # Validar que el estado sea uno de los permitidos (opcional pero recomendado)
+        allowed_statuses = ['Recibido', 'En preparación', 'Entregado', 'Cancelado']
+        if new_status not in allowed_statuses:
+            raise ValidationError(f"Estado '{new_status}' no es válido.")
+        
+        # Obtener el pedido
+        order = self.get_order_by_id(order_id)
+        
+        # Actualizar el estado
+        order.estado = new_status
+        
+        # Guardar los cambios en la base de datos
+        return self.order_repository.update(order)
